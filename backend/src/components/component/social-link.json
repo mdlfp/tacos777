@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_component_social_links",
+  "info": {
+    "displayName": "social-link",
+    "icon": "link"
+  },
+  "options": {},
+  "attributes": {
+    "plataforma": {
+      "type": "enumeration",
+      "enum": [
+        "facebook",
+        "instagram",
+        "tiktok"
+      ]
+    },
+    "url": {
+      "type": "component",
+      "component": "component.link",
+      "repeatable": false
+    }
+  },
+  "config": {}
+}

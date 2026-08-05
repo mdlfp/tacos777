@@ -1,0 +1,32 @@
+{
+  "collectionName": "components_layout_nosotros_sections",
+  "info": {
+    "displayName": "Nosotros Section",
+    "icon": "heart"
+  },
+  "options": {},
+  "attributes": {
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "description": {
+      "type": "text"
+    },
+    "title": {
+      "type": "string",
+      "default": "Nosotros",
+      "required": true
+    },
+    "timeline": {
+      "type": "component",
+      "component": "component.timeline-item",
+      "repeatable": true
+    }
+  },
+  "config": {}
+}

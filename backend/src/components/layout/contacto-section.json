@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_layout_contacto_sections",
+  "info": {
+    "displayName": "Contacto Section",
+    "icon": "message"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

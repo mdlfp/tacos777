@@ -1,0 +1,64 @@
+{
+  "kind": "singleType",
+  "collectionName": "home_pages",
+  "info": {
+    "singularName": "home-page",
+    "pluralName": "home-pages",
+    "displayName": "Home page"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "default": "Taqueria777",
+      "required": true
+    },
+    "description": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "default": "Taqueria777 los mejores tacos de ensenada desde decadas visita nuestras diferentes sucursales en calle delante, porticos, cortez ",
+      "required": true
+    },
+    "sections": {
+      "type": "dynamiczone",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "components": [
+        "layout.hero-section",
+        "layout.nosotros-section",
+        "layout.menu-section",
+        "layout.sucursakes-section",
+        "layout.contacto-section"
+      ]
+    },
+    "homeSeo": {
+      "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "shared.seo",
+      "repeatable": false
+    }
+  }
+}
