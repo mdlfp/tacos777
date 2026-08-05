@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_layout_sucursakes_sections",
+  "info": {
+    "displayName": "Sucursales Section",
+    "icon": "chartBubble"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "Sucursales",
+      "required": true
+    },
+    "description": {
+      "type": "string"
+    },
+    "sucursal": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::sucursal.sucursal"
+    }
+  },
+  "config": {}
+}

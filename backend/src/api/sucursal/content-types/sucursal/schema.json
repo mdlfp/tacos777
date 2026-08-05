@@ -1,0 +1,45 @@
+{
+  "kind": "collectionType",
+  "collectionName": "sucursals",
+  "info": {
+    "singularName": "sucursal",
+    "pluralName": "sucursals",
+    "displayName": "Sucursal"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "nombre": {
+      "type": "string",
+      "required": true
+    },
+    "direccion": {
+      "type": "string",
+      "required": true
+    },
+    "telefono": {
+      "type": "string"
+    },
+    "horario": {
+      "type": "component",
+      "component": "bussines.opening-hours",
+      "repeatable": true,
+      "required": true
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "mapLink": {
+      "type": "component",
+      "component": "component.link",
+      "repeatable": false
+    }
+  }
+}

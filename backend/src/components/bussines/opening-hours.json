@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_bussines_opening_hours",
+  "info": {
+    "displayName": "opening-hours",
+    "icon": "clock"
+  },
+  "options": {},
+  "attributes": {
+    "dayOfWeek": {
+      "type": "enumeration",
+      "enum": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ]
+    },
+    "opens": {
+      "type": "time",
+      "required": false
+    },
+    "closes": {
+      "type": "time"
+    }
+  },
+  "config": {}
+}
