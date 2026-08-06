@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "mensaje_contactos",
+  "info": {
+    "singularName": "mensaje-contacto",
+    "pluralName": "mensaje-contactos",
+    "displayName": "Mensaje Contacto"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "nombre": {
+      "type": "string",
+      "required": true
+    },
+    "telefono": {
+      "type": "string",
+      "required": true
+    },
+    "mensaje": {
+      "type": "text",
+      "required": true
+    },
+    "leido": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

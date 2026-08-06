@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import { enviarMensajeContacto, ContactoSubmitError } from "@/app/lib/contacto";
+import { contactoSchema } from "@/app/lib/schemas/contacto";
 import { isContactoValid, hasText } from "@/app/lib/validate";
 import type { ContactoSection, SiteConfig, SocialLinkComponent } from "@/app/lib/types";
 
@@ -22,6 +24,7 @@ interface ContactoProps {
 }
 
 type EstadoEnvio = "idle" | "enviando" | "exito" | "error";
+type FormErrors = Partial<Record<"nombre" | "telefono" | "mensaje", string>>;
 
 function WhatsappIcon() {
   return (
@@ -71,12 +74,19 @@ function toWhatsappHref(whatsapp?: string): string | null {
   const digits = whatsapp.replace(/\D/g, "");
   return digits ? `https://wa.me/52${digits}` : null;
 }
+interface ContactoProps {
+  data: ContactoSection;
+  siteConfig: SiteConfig;
+}
+
 
 export default function Contacto({ data, siteConfig }: ContactoProps) {
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const [errors, setErrors] = useState<FormErrors>({});
   const [estado, setEstado] = useState<EstadoEnvio>("idle");
+  const [errorMsg, setErrorMsg] = useState("");
 
   if (
     !isContactoValid(
@@ -96,28 +106,43 @@ export default function Contacto({ data, siteConfig }: ContactoProps) {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setErrors({});
+    setErrorMsg("");
+
+    const result = contactoSchema.safeParse({ nombre, telefono, mensaje });
+
+    if (!result.success) {
+      const fieldErrors: FormErrors = {};
+      for (const issue of result.error.issues) {
+        const field = issue.path[0] as keyof FormErrors;
+        if (!fieldErrors[field]) {
+          fieldErrors[field] = issue.message;
+        }
+      }
+      setErrors(fieldErrors);
+      return;
+    }
+
     setEstado("enviando");
 
     try {
-      // TODO: reemplazar por el POST real a Strapi
-      // await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/mensaje-contactos`, {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ data: { nombre, telefono, mensaje } }),
-      // });
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      await enviarMensajeContacto(result.data);
       setEstado("exito");
       setNombre("");
       setTelefono("");
       setMensaje("");
-    } catch {
+    } catch (err) {
       setEstado("error");
+      setErrorMsg(
+        err instanceof ContactoSubmitError
+          ? err.message
+          : "No se pudo enviar. Intenta de nuevo o escríbenos por WhatsApp."
+      );
     }
   }
 
   return (
     <section id="contacto" className="relative bg-[#7C0F14] py-24 px-6 sm:px-10 overflow-hidden">
-      {/* Bloque diagonal verde, mismo lenguaje que Sucursales, en espejo */}
       <div
         className="pointer-events-none absolute -left-24 bottom-0 h-full w-[38%] bg-[#0F6B3C]"
         style={{ clipPath: "polygon(0 0, 65% 0, 100% 100%, 0 100%)" }}
@@ -125,7 +150,6 @@ export default function Contacto({ data, siteConfig }: ContactoProps) {
       />
 
       <div className="relative mx-auto grid max-w-6xl grid-cols-1 gap-14 md:grid-cols-2">
-        {/* Columna izquierda: info directa de contacto */}
         <div className="flex flex-col justify-center">
           <p className="mb-2 text-sm font-bold tracking-[0.2em] text-[#F5A623]">
             ¿NOS BUSCAS?
@@ -176,9 +200,8 @@ export default function Contacto({ data, siteConfig }: ContactoProps) {
                 </a>
               ))}
           </div>
-        </div>
+        </div >
 
-        {/* Columna derecha: formulario */}
         <div className="rounded-2xl bg-[#A8151C] p-8 shadow-lg ring-1 ring-black/10 sm:p-10">
           <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
             <div className="flex flex-col gap-2">
@@ -189,12 +212,18 @@ export default function Contacto({ data, siteConfig }: ContactoProps) {
                 id="nombre"
                 name="nombre"
                 type="text"
-                required
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 placeholder="Tu nombre"
+                aria-invalid={!!errors.nombre}
+                aria-describedby={errors.nombre ? "nombre-error" : undefined}
                 className="rounded-lg border-2 border-transparent bg-[#7C0F14] px-4 py-3 text-[#FBD9AE] placeholder:text-[#E8B58C]/60 outline-none transition-colors focus:border-[#F5A623]"
               />
+              {errors.nombre && (
+                <p id="nombre-error" role="alert" className="text-sm font-semibold text-[#FFB4B4]">
+                  {errors.nombre}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -205,12 +234,18 @@ export default function Contacto({ data, siteConfig }: ContactoProps) {
                 id="telefono"
                 name="telefono"
                 type="tel"
-                required
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
                 placeholder="646 123 4567"
+                aria-invalid={!!errors.telefono}
+                aria-describedby={errors.telefono ? "telefono-error" : undefined}
                 className="rounded-lg border-2 border-transparent bg-[#7C0F14] px-4 py-3 text-[#FBD9AE] placeholder:text-[#E8B58C]/60 outline-none transition-colors focus:border-[#F5A623]"
               />
+              {errors.telefono && (
+                <p id="telefono-error" role="alert" className="text-sm font-semibold text-[#FFB4B4]">
+                  {errors.telefono}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -220,13 +255,19 @@ export default function Contacto({ data, siteConfig }: ContactoProps) {
               <textarea
                 id="mensaje"
                 name="mensaje"
-                required
                 rows={4}
                 value={mensaje}
                 onChange={(e) => setMensaje(e.target.value)}
                 placeholder="Cuéntanos qué necesitas..."
+                aria-invalid={!!errors.mensaje}
+                aria-describedby={errors.mensaje ? "mensaje-error" : undefined}
                 className="resize-none rounded-lg border-2 border-transparent bg-[#7C0F14] px-4 py-3 text-[#FBD9AE] placeholder:text-[#E8B58C]/60 outline-none transition-colors focus:border-[#F5A623]"
               />
+              {errors.mensaje && (
+                <p id="mensaje-error" role="alert" className="text-sm font-semibold text-[#FFB4B4]">
+                  {errors.mensaje}
+                </p>
+              )}
             </div>
 
             <button
@@ -244,12 +285,12 @@ export default function Contacto({ data, siteConfig }: ContactoProps) {
             )}
             {estado === "error" && (
               <p role="alert" className="text-sm font-semibold text-[#FFB4B4]">
-                No se pudo enviar. Intenta de nuevo o escríbenos por WhatsApp.
+                {errorMsg}
               </p>
             )}
           </form>
         </div>
-      </div>
-    </section>
+      </div >
+    </section >
   );
 }

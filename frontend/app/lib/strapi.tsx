@@ -24,7 +24,6 @@ async function fetchAPI<T>(
       "Content-Type": "application/json",
       ...options.headers,
     },
-    next: { revalidate: 60 },
   });
 
   if (!res.ok) {
@@ -84,7 +83,9 @@ const homePageQuery = qs.stringify(
 );
 
 export async function getHomePage(): Promise<HomePage> {
-  return fetchAPI<HomePage>("/home-page", homePageQuery);
+  return fetchAPI<HomePage>("/home-page", homePageQuery, {
+    next: { revalidate: 60, tags: ["home-page"] },
+  });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -104,7 +105,9 @@ const siteConfigQuery = qs.stringify(
 );
 
 export async function getSiteConfig(): Promise<SiteConfig> {
-  return fetchAPI<SiteConfig>("/site-config", siteConfigQuery);
+  return fetchAPI<SiteConfig>("/site-config", siteConfigQuery, {
+    next: { revalidate: 60, tags: ["site-config"] },
+  });
 }
 
 /* -------------------------------------------------------------------------- */
