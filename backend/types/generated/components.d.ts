@@ -99,7 +99,7 @@ export interface LayoutMenuSection extends Struct.ComponentSchema {
   };
   attributes: {
     description: Schema.Attribute.String;
-    products: Schema.Attribute.Relation<'oneToOne', 'api::product.product'>;
+    products: Schema.Attribute.Relation<'oneToMany', 'api::product.product'>;
     title: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
