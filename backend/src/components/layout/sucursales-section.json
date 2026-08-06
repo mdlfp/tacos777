@@ -1,5 +1,5 @@
 {
-  "collectionName": "components_layout_sucursakes_sections",
+  "collectionName": "components_layout_sucursales_sections",
   "info": {
     "displayName": "Sucursales Section",
     "icon": "chartBubble"
@@ -14,10 +14,13 @@
     "description": {
       "type": "string"
     },
-    "sucursal": {
+    "sucursales": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "oneToMany",
       "target": "api::sucursal.sucursal"
+    },
+    "eyebrow": {
+      "type": "string"
     }
   },
   "config": {}

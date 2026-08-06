@@ -1,39 +1,25 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import { isContactoValid, hasText } from "@/app/lib/validate";
+import type { ContactoSection, SiteConfig, SocialLinkComponent } from "@/app/lib/types";
 
 /**
  * ─────────────────────────────────────────────────────────────
- *  Pensado para un Collection Type "mensaje-contacto" en Strapi
- *  con los campos: nombre, telefono, mensaje. Cuando conectes el
- *  backend, reemplaza el `setTimeout` de handleSubmit por un
- *  POST a `${STRAPI_URL}/api/mensaje-contactos` con este shape:
+ *  La sección "Contacto" del home-page solo trae title/description.
+ *  El teléfono, whatsapp, email y redes sociales vienen de SiteConfig
+ *  (Single Type separado), así que este componente recibe ambos.
  *
- *  { data: { nombre, telefono, mensaje } }
+ *  El formulario sigue con el mismo TODO de antes: cuando tengas el
+ *  Collection Type para mensajes de contacto en Strapi, reemplaza el
+ *  setTimeout por un POST real.
  * ─────────────────────────────────────────────────────────────
  */
 
-interface ContactoInfo {
-  telefono: string;
-  telefonoHref: string;
-  whatsappHref: string;
-  correo: string;
-  direccion: string;
-  horario: string;
-  instagram?: string;
-  facebook?: string;
+interface ContactoProps {
+  data: ContactoSection;
+  siteConfig: SiteConfig;
 }
-
-const CONTACTO: ContactoInfo = {
-  telefono: "(646) 123 4567",
-  telefonoHref: "tel:+526461234567",
-  whatsappHref: "https://wa.me/526461234567",
-  correo: "hola@taqueria777.com",
-  direccion: "Av. Ruiz 777, Zona Centro, Ensenada, B.C.",
-  horario: "Todos los días · 6:00 pm – 2:00 am",
-  instagram: "https://instagram.com/taqueria777",
-  facebook: "https://facebook.com/taqueria777",
-};
 
 type EstadoEnvio = "idle" | "enviando" | "exito" | "error";
 
@@ -63,11 +49,50 @@ function FacebookIcon() {
   );
 }
 
-export default function Contacto({ info = CONTACTO }: { info?: ContactoInfo }) {
+/** Mapea el nombre de plataforma (tal como lo escribas en Strapi) a un ícono. */
+function SocialIcon({ plataforma }: { plataforma: string }) {
+  const key = plataforma.trim().toLowerCase();
+  if (key.includes("instagram")) return <InstagramIcon />;
+  if (key.includes("facebook")) return <FacebookIcon />;
+  if (key.includes("whatsapp")) return <WhatsappIcon />;
+  return null;
+}
+
+/** Strapi guarda el teléfono como texto libre; lo limpiamos para el href tel:. */
+function toTelHref(telefono?: string): string | null {
+  if (!hasText(telefono)) return null;
+  const digits = telefono.replace(/\D/g, "");
+  return digits ? `tel:+52${digits}` : null;
+}
+
+/** Igual para whatsapp — asumimos número mexicano de 10 dígitos. */
+function toWhatsappHref(whatsapp?: string): string | null {
+  if (!hasText(whatsapp)) return null;
+  const digits = whatsapp.replace(/\D/g, "");
+  return digits ? `https://wa.me/52${digits}` : null;
+}
+
+export default function Contacto({ data, siteConfig }: ContactoProps) {
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [estado, setEstado] = useState<EstadoEnvio>("idle");
+
+  if (
+    !isContactoValid(
+      data,
+      siteConfig?.telefono,
+      siteConfig?.whatsapp,
+      siteConfig?.email
+    )
+  ) {
+    return null;
+  }
+
+  const { title, description } = data;
+  const telefonoHref = toTelHref(siteConfig.telefono);
+  const whatsappHref = toWhatsappHref(siteConfig.whatsapp);
+  const redes: SocialLinkComponent[] = siteConfig.redesSociales ?? [];
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -106,56 +131,50 @@ export default function Contacto({ info = CONTACTO }: { info?: ContactoInfo }) {
             ¿NOS BUSCAS?
           </p>
           <h2 className="text-6xl sm:text-7xl font-black uppercase leading-[0.9] text-[#F5A623] tracking-tight">
-            Contacto
+            {title || "Contacto"}
           </h2>
-          <p className="mt-5 max-w-md text-lg text-[#FBD9AE]">
-            Pedidos, dudas o comentarios — escríbenos o pásate directo, aquí
-            siempre hay una mesa.
-          </p>
+          {hasText(description) && (
+            <p className="mt-5 max-w-md text-lg text-[#FBD9AE]">{description}</p>
+          )}
 
           <div className="mt-10 flex flex-col gap-5 text-[#FBD9AE]">
-            <a
-              href={info.telefonoHref}
-              className="flex items-center gap-3 text-lg font-semibold hover:text-[#F5A623] transition-colors"
-            >
-              {info.telefono}
-            </a>
-            <p>{info.direccion}</p>
-            <p className="text-[#E8B58C]">{info.horario}</p>
+            {telefonoHref && (
+              <a
+                href={telefonoHref}
+                className="flex items-center gap-3 text-lg font-semibold hover:text-[#F5A623] transition-colors"
+              >
+                {siteConfig.telefono}
+              </a>
+            )}
           </div>
 
           <div className="mt-8 flex items-center gap-4">
-            <a
-              href={info.whatsappHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-[#0F6B3C] px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F5A623]"
-            >
-              <WhatsappIcon />
-              WhatsApp
-            </a>
-            {info.instagram && (
+            {whatsappHref && (
               <a
-                href={info.instagram}
+                href={whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Instagram"
-                className="text-[#F5A623] transition-transform hover:scale-110"
+                className="inline-flex items-center gap-2 rounded-full bg-[#0F6B3C] px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-white transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F5A623]"
               >
-                <InstagramIcon />
+                <WhatsappIcon />
+                WhatsApp
               </a>
             )}
-            {info.facebook && (
-              <a
-                href={info.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Facebook"
-                className="text-[#F5A623] transition-transform hover:scale-110"
-              >
-                <FacebookIcon />
-              </a>
-            )}
+
+            {redes
+              .filter((r) => hasText(r.plataforma) && hasText(r.url))
+              .map((r) => (
+                <a
+                  key={r.id}
+                  href={r.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={r.plataforma}
+                  className="text-[#F5A623] transition-transform hover:scale-110"
+                >
+                  <SocialIcon plataforma={r.plataforma} />
+                </a>
+              ))}
           </div>
         </div>
 

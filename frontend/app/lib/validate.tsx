@@ -32,7 +32,7 @@ export function hasValidImage(
 export function hasValidLink(
   link?: LinkComponent | null
 ): link is LinkComponent {
-  return !!link && hasText(link.label) && hasText(link.url);
+  return !!link && hasText(link.label) && hasText(link.href);
 }
 
 export function hasValidMapLink(
@@ -164,7 +164,7 @@ export function isSucursalesSectionValid(
   data?: SucursalesSection | null
 ): boolean {
   if (!data) return false;
-  return getValidSucursales(data.sucursal).length > 0;
+  return getValidSucursales(data.sucursales).length > 0;
 }
 
 /* -------------------------------------------------------------------------- */

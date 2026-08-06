@@ -26,6 +26,12 @@
       "type": "component",
       "component": "component.link",
       "repeatable": true
+    },
+    "eyebrow": {
+      "type": "string"
+    },
+    "headingHighlight": {
+      "type": "string"
     }
   },
   "config": {}

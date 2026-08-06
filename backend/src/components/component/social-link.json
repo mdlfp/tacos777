@@ -15,9 +15,7 @@
       ]
     },
     "url": {
-      "type": "component",
-      "component": "component.link",
-      "repeatable": false
+      "type": "string"
     }
   },
   "config": {}

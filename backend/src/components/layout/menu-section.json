@@ -17,6 +17,9 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::product.product"
+    },
+    "eyebrow": {
+      "type": "string"
     }
   },
   "config": {}

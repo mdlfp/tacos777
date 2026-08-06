@@ -487,7 +487,7 @@ export interface ApiHomePageHomePage extends Struct.SingleTypeSchema {
         'layout.hero-section',
         'layout.nosotros-section',
         'layout.menu-section',
-        'layout.sucursakes-section',
+        'layout.sucursales-section',
         'layout.contacto-section',
       ]
     > &
@@ -613,10 +613,10 @@ export interface ApiSiteConfigSiteConfig extends Struct.SingleTypeSchema {
 }
 
 export interface ApiSucursalSucursal extends Struct.CollectionTypeSchema {
-  collectionName: 'sucursals';
+  collectionName: 'sucursales';
   info: {
     displayName: 'Sucursal';
-    pluralName: 'sucursals';
+    pluralName: 'sucursales';
     singularName: 'sucursal';
   };
   options: {

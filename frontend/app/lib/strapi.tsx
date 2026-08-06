@@ -28,15 +28,21 @@ async function fetchAPI<T>(
   });
 
   if (!res.ok) {
+    let detail = "";
+    try {
+      const body = await res.json();
+      detail = JSON.stringify(body, null, 2);
+    } catch {
+      detail = await res.text().catch(() => "");
+    }
     throw new Error(
-      `Error al consultar Strapi: ${res.status} ${res.statusText} (${url})`
+      `Error al consultar Strapi: ${res.status} ${res.statusText}\n${detail}\n(${url})`
     );
   }
 
   const json = await res.json();
   return json.data as T;
 }
-
 /* -------------------------------------------------------------------------- */
 /* Home Page                                                                  */
 /* -------------------------------------------------------------------------- */
@@ -61,7 +67,7 @@ const homePageQuery = qs.stringify(
           },
           "layout.sucursales-section": {
             populate: {
-              sucursal: {
+              sucursales: {
                 populate: ["image", "horario", "mapLink"],
               },
             },

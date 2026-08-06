@@ -1,9 +1,9 @@
 {
   "kind": "collectionType",
-  "collectionName": "sucursals",
+  "collectionName": "sucursales",
   "info": {
     "singularName": "sucursal",
-    "pluralName": "sucursals",
+    "pluralName": "sucursales",
     "displayName": "Sucursal"
   },
   "options": {

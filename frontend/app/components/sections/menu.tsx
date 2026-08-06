@@ -1,86 +1,40 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { groupProductsByCategory, isMenuSectionValid, hasText } from '@/app/lib/validate';
+import type { MenuSection as MenuSectionData } from '@/app/lib/types';
 
 // ---------------------------------------------------------------------------
-// Design notes (for future-you / whoever edits this):
-// - Palette pulls straight from the hero: red #C41E2A, gold #F5B301,
-//   green #1B7A43, plus a warm paper cream (#FFF3D6) for the menu surface
-//   and an ink charcoal (#241C15) for body text.
-// - Display type: Anton (bold condensed, matches the hero's "TAQUERÍA 777").
-//   Body/price type: Inter.
-// - Signature element: each menu item uses a dot-leader price line, like a
-//   taco-stand menu board or a paper order ticket — not a generic card grid.
-// - Swap <img> for next/image in the real project; left as <img> here so the
-//   component has no build-time dependency on image assets.
+// Design notes (para futuro-yo / quien edite esto):
+// - Paleta tomada del hero: rojo #C41E2A, dorado #F5B301,
+//   verde #1B7A43, más un crema cálido (#FFF3D6) para la superficie del menú
+//   y un carbón tinta (#241C15) para el texto de cuerpo.
+// - Tipografía display: Anton. Tipografía de cuerpo/precios: Inter.
+// - Elemento de firma: cada item de menú usa una línea de precio con
+//   puntos guía, como un menú de puesto de tacos o un ticket de papel.
+// - Las categorías y los items ahora vienen de Strapi (relación `products`
+//   con `product_category`), no de datos fijos.
 // ---------------------------------------------------------------------------
-
-type CategoryId = 'tacos' | 'especialidades' | 'quesadillas' | 'bebidas' | 'extras';
-
-interface Category {
-  id: CategoryId;
-  label: string;
-}
-
-interface MenuItem {
-  name: string;
-  desc: string;
-  price: number;
-  badge?: string;
-}
-
-const CATEGORIES: Category[] = [
-  { id: 'tacos', label: 'Tacos' },
-  { id: 'especialidades', label: 'Especialidades' },
-  { id: 'quesadillas', label: 'Quesadillas' },
-  { id: 'bebidas', label: 'Bebidas' },
-  { id: 'extras', label: 'Extras' },
-];
-
-const MENU: Record<CategoryId, MenuItem[]> = {
-  tacos: [
-    { name: 'Taco de asada', desc: 'Res asada, cebolla, cilantro', price: 28 },
-    { name: 'Taco de adobada', desc: 'Al pastor, piña, cebolla, cilantro', price: 26 },
-    {
-      name: 'Taco de pescado',
-      desc: 'Pescado capeado estilo Ensenada, col, salsa blanca',
-      price: 32,
-      badge: 'Especialidad de la casa',
-    },
-    { name: 'Taco de camarón', desc: 'Camarón a la plancha, chile toreado', price: 34 },
-    { name: 'Taco de lengua', desc: 'Lengua de res, salsa verde', price: 30 },
-  ],
-  especialidades: [
-    { name: 'Mulita', desc: 'Doble tortilla, queso, carne de tu elección', price: 45 },
-    { name: 'Vampiro', desc: 'Tortilla crujiente, queso gratinado, adobada', price: 42 },
-    { name: 'Gringa', desc: 'Tortilla de harina, queso, pastor', price: 44 },
-    { name: 'Trompo especial 777', desc: 'Pastor, piña asada, queso, papa', price: 55 },
-  ],
-  quesadillas: [
-    { name: 'Quesadilla sencilla', desc: 'Queso oaxaca', price: 30 },
-    { name: 'Quesadilla de asada', desc: 'Queso oaxaca, res asada', price: 40 },
-    { name: 'Quesadilla de camarón', desc: 'Queso oaxaca, camarón, chile toreado', price: 48 },
-  ],
-  bebidas: [
-    { name: 'Agua de horchata', desc: '16 oz', price: 20 },
-    { name: 'Agua de jamaica', desc: '16 oz', price: 20 },
-    { name: 'Refresco', desc: 'Lata 355 ml', price: 18 },
-    { name: 'Cerveza', desc: 'Consultar variedades', price: 35 },
-  ],
-  extras: [
-    { name: 'Papas con todo', desc: 'Queso, crema, pico de gallo', price: 38 },
-    { name: 'Guacamole', desc: 'Con totopos', price: 32 },
-    { name: 'Frijoles de la olla', desc: 'Porción individual', price: 15 },
-  ],
-};
 
 function formatPrice(n: number): string {
   return `$${n}`;
 }
 
-export default function MenuSection() {
-  const [active, setActive] = useState<CategoryId>('tacos');
-  const items = MENU[active];
+interface MenuProps {
+  data: MenuSectionData;
+}
+
+export default function Menu({ data }: MenuProps) {
+  const grouped = useMemo(() => groupProductsByCategory(data.products), [data.products]);
+  const categories = useMemo(() => Object.keys(grouped), [grouped]);
+
+  const [active, setActive] = useState<string | null>(categories[0] ?? null);
+
+  if (!isMenuSectionValid(data) || !active) return null;
+
+  const items = grouped[active] ?? [];
+
+  const {eyebrow} = data;
 
   return (
     <section
@@ -94,7 +48,7 @@ export default function MenuSection() {
         .menu-body { font-family: 'Inter', sans-serif; }
       `}</style>
 
-      {/* Torn-edge top border, like a menu board taped to the wall */}
+      {/* Borde superior rasgado, como un menú pegado a la pared */}
       <div
         className="absolute top-0 left-0 right-0 h-3"
         style={{
@@ -106,55 +60,67 @@ export default function MenuSection() {
 
       <div className="max-w-4xl mx-auto">
         <div className="mb-10">
-          <p
-            className="menu-body text-sm font-semibold tracking-[0.2em] uppercase mb-2"
-            style={{ color: '#C41E2A' }}
-          >
-            Ensenada, B.C.
-          </p>
+          {hasText(eyebrow) && (
+            <p
+              className="menu-body text-sm font-semibold tracking-[0.2em] uppercase mb-2"
+              style={{ color: '#C41E2A' }}
+            >
+              {eyebrow}
+            </p>
+          )}
           <h2
             className="menu-display text-5xl sm:text-6xl uppercase leading-none"
             style={{ color: '#241C15' }}
           >
-            El Menú
+            {data.title || 'El Menú'}
           </h2>
+          {data.description && (
+            <p
+              className="menu-body text-sm mt-2"
+              style={{ color: '#241C15', opacity: 0.7 }}
+            >
+              {data.description}
+            </p>
+          )}
         </div>
 
-        {/* Category tabs */}
-        <div className="flex flex-wrap gap-2 mb-10">
-          {CATEGORIES.map((cat) => {
-            const isActive = cat.id === active;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => setActive(cat.id)}
-                className="menu-body px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wide transition-colors duration-150"
-                style={
-                  isActive
-                    ? { backgroundColor: '#F5B301', color: '#241C15' }
-                    : {
+        {/* Tabs de categoría, generados dinámicamente desde Strapi */}
+        {categories.length > 1 && (
+          <div className="flex flex-wrap gap-2 mb-10">
+            {categories.map((cat) => {
+              const isActive = cat === active;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setActive(cat)}
+                  className="menu-body px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wide transition-colors duration-150"
+                  style={
+                    isActive
+                      ? { backgroundColor: '#F5B301', color: '#241C15' }
+                      : {
                         backgroundColor: 'transparent',
                         color: '#1B7A43',
                         border: '2px solid #1B7A43',
                       }
-                }
-              >
-                {cat.label}
-              </button>
-            );
-          })}
-        </div>
+                  }
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
-        {/* Menu items — dot-leader ticket style */}
+        {/* Items del menú — estilo ticket con línea de puntos */}
         <ul className="flex flex-col gap-6">
-          {items.map((item) => (
-            <li key={item.name} className="flex flex-col">
+          {items.map((product) => (
+            <li key={product.id} className="flex flex-col">
               <div className="flex items-baseline gap-2">
                 <span
                   className="menu-display text-xl sm:text-2xl uppercase shrink-0"
                   style={{ color: '#241C15' }}
                 >
-                  {item.name}
+                  {product.name}
                 </span>
                 <span
                   className="flex-1 border-b-2 border-dotted mb-1"
@@ -165,22 +131,17 @@ export default function MenuSection() {
                   className="menu-display text-xl sm:text-2xl shrink-0"
                   style={{ color: '#C41E2A' }}
                 >
-                  {formatPrice(item.price)}
+                  {formatPrice(product.basePrice!)}
                 </span>
               </div>
-              <div className="flex items-center gap-2 mt-1">
-                <p className="menu-body text-sm" style={{ color: '#241C15', opacity: 0.7 }}>
-                  {item.desc}
+              {product.description && (
+                <p
+                  className="menu-body text-sm mt-1"
+                  style={{ color: '#241C15', opacity: 0.7 }}
+                >
+                  {product.description}
                 </p>
-                {item.badge && (
-                  <span
-                    className="menu-body text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded"
-                    style={{ backgroundColor: '#1B7A43', color: '#FFF3D6' }}
-                  >
-                    {item.badge}
-                  </span>
-                )}
-              </div>
+              )}
             </li>
           ))}
         </ul>

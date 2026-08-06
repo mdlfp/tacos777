@@ -48,7 +48,7 @@ export interface ComponentSocialLink extends Struct.ComponentSchema {
     plataforma: Schema.Attribute.Enumeration<
       ['facebook', 'instagram', 'tiktok']
     >;
-    url: Schema.Attribute.Component<'component.link', false>;
+    url: Schema.Attribute.String;
   };
 }
 
@@ -61,7 +61,7 @@ export interface ComponentTimelineItem extends Struct.ComponentSchema {
   attributes: {
     description: Schema.Attribute.String & Schema.Attribute.Required;
     title: Schema.Attribute.String & Schema.Attribute.Required;
-    year: Schema.Attribute.Integer & Schema.Attribute.Required;
+    year: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 
@@ -73,6 +73,7 @@ export interface LayoutContactoSection extends Struct.ComponentSchema {
   };
   attributes: {
     description: Schema.Attribute.String;
+    eyebrow: Schema.Attribute.String;
     title: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
@@ -85,7 +86,9 @@ export interface LayoutHeroSection extends Struct.ComponentSchema {
   };
   attributes: {
     ctaLink: Schema.Attribute.Component<'component.link', true>;
+    eyebrow: Schema.Attribute.String;
     heading: Schema.Attribute.String & Schema.Attribute.Required;
+    headingHighlight: Schema.Attribute.String;
     image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
     subHeading: Schema.Attribute.Text & Schema.Attribute.Required;
   };
@@ -99,6 +102,7 @@ export interface LayoutMenuSection extends Struct.ComponentSchema {
   };
   attributes: {
     description: Schema.Attribute.String;
+    eyebrow: Schema.Attribute.String;
     products: Schema.Attribute.Relation<'oneToMany', 'api::product.product'>;
     title: Schema.Attribute.String & Schema.Attribute.Required;
   };
@@ -112,6 +116,7 @@ export interface LayoutNosotrosSection extends Struct.ComponentSchema {
   };
   attributes: {
     description: Schema.Attribute.Text;
+    eyebrow: Schema.Attribute.String;
     image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
     timeline: Schema.Attribute.Component<'component.timeline-item', true>;
     title: Schema.Attribute.String &
@@ -120,15 +125,19 @@ export interface LayoutNosotrosSection extends Struct.ComponentSchema {
   };
 }
 
-export interface LayoutSucursakesSection extends Struct.ComponentSchema {
-  collectionName: 'components_layout_sucursakes_sections';
+export interface LayoutSucursalesSection extends Struct.ComponentSchema {
+  collectionName: 'components_layout_sucursales_sections';
   info: {
     displayName: 'Sucursales Section';
     icon: 'chartBubble';
   };
   attributes: {
     description: Schema.Attribute.String;
-    sucursal: Schema.Attribute.Relation<'oneToOne', 'api::sucursal.sucursal'>;
+    eyebrow: Schema.Attribute.String;
+    sucursales: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::sucursal.sucursal'
+    >;
     title: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'Sucursales'>;
@@ -162,7 +171,7 @@ declare module '@strapi/strapi' {
       'layout.hero-section': LayoutHeroSection;
       'layout.menu-section': LayoutMenuSection;
       'layout.nosotros-section': LayoutNosotrosSection;
-      'layout.sucursakes-section': LayoutSucursakesSection;
+      'layout.sucursales-section': LayoutSucursalesSection;
       'shared.seo': SharedSeo;
     }
   }

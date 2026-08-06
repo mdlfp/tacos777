@@ -26,6 +26,9 @@
       "type": "component",
       "component": "component.timeline-item",
       "repeatable": true
+    },
+    "eyebrow": {
+      "type": "string"
     }
   },
   "config": {}

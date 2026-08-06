@@ -15,7 +15,7 @@ export interface StrapiMedia {
 export interface LinkComponent {
   id: number;
   label: string;
-  url: string;
+  href: string;
   isExternal?: boolean;
 }
 
@@ -52,7 +52,7 @@ export interface TimelineItemComponent {
 
 export interface SocialLinkComponent {
   id: number;
-  platform: string;
+  plataforma: string;
   url: string;
 }
 
@@ -72,10 +72,12 @@ export interface SeoComponent {
 export interface HeroSection {
   __component: "layout.hero-section";
   id: number;
+  eyebrow?: string;
   heading?: string;
+  headingHighlight?: string;
   subHeading?: string;
   image?: StrapiMedia;
-  ctaLink?: LinkComponent[]; // repetible
+  ctaLink?: LinkComponent[];
 }
 
 /* -------------------------------------------------------------------------- */
@@ -101,6 +103,7 @@ export interface Product {
 export interface MenuSection {
   __component: "layout.menu-section";
   id: number;
+  eyebrow?: string;
   title?: string;
   description?: string;
   products?: Product[]; // relación
@@ -113,6 +116,7 @@ export interface MenuSection {
 export interface NosotrosSection {
   __component: "layout.nosotros-section";
   id: number;
+  eyebrow?: string;
   title?: string;
   description?: string;
   image?: StrapiMedia;
@@ -136,9 +140,10 @@ export interface Sucursal {
 export interface SucursalesSection {
   __component: "layout.sucursales-section";
   id: number;
+  eyebrow?: string;
   title?: string;
   description?: string;
-  sucursal?: Sucursal[]; // relación
+  sucursales?: Sucursal[]; // relación
 }
 
 /* -------------------------------------------------------------------------- */
@@ -168,6 +173,7 @@ export interface HomePage {
     | ContactoSection
   >;
   homeSeo?: SeoComponent;
+  updatedAt?: string;
 }
 
 /* -------------------------------------------------------------------------- */

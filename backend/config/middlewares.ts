@@ -29,7 +29,15 @@ const config: Core.Config.Middlewares = [
   },
   'strapi::cors',
   'strapi::poweredBy',
-  'strapi::query',
+  {
+    name: 'strapi::query',
+    config: {
+      qs: {
+        arrayLimit: 100,
+        depth: 20,
+      },
+    },
+  },
   'strapi::body',
   'strapi::session',
   'strapi::favicon',
